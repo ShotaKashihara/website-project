@@ -56,44 +56,61 @@ function resizeImage() {
 
     // 固定DPI: 300 DPI
     const dpi = 300;
-    // 固定サイズ: 50mm x 75mm（5cm x 7.5cm）
-    const widthMm = 50;
-    const heightMm = 75;
+    // シールサイズ: 50mm x 75mm（5cm x 7.5cm）
+    const stickerWidthMm = 50;
+    const stickerHeightMm = 75;
+    // 印刷物サイズ: L判 89mm x 127mm
+    const printWidthMm = 89;
+    const printHeightMm = 127;
 
-    const widthPx = mmToPixels(widthMm, dpi);
-    const heightPx = mmToPixels(heightMm, dpi);
+    // 印刷物全体のサイズ（L判）
+    const printWidthPx = mmToPixels(printWidthMm, dpi);
+    const printHeightPx = mmToPixels(printHeightMm, dpi);
+    // シール部分のサイズ
+    const stickerWidthPx = mmToPixels(stickerWidthMm, dpi);
+    const stickerHeightPx = mmToPixels(stickerHeightMm, dpi);
 
-    // キャンバスのサイズを設定
-    resizedCanvas.width = widthPx;
-    resizedCanvas.height = heightPx;
+    // キャンバスのサイズをL判に設定
+    resizedCanvas.width = printWidthPx;
+    resizedCanvas.height = printHeightPx;
+
+    // 背景を白に設定（余白部分）
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, printWidthPx, printHeightPx);
+
+    // シール画像を中央に配置するためのオフセットを計算
+    const offsetX = (printWidthPx - stickerWidthPx) / 2;
+    const offsetY = (printHeightPx - stickerHeightPx) / 2;
 
     // 画像をリサイズして描画（アスペクト比を保持）
     const imgAspect = currentImage.width / currentImage.height;
-    const canvasAspect = widthPx / heightPx;
+    const stickerAspect = stickerWidthPx / stickerHeightPx;
 
-    let drawWidth, drawHeight, offsetX = 0, offsetY = 0;
+    let drawWidth, drawHeight, imageOffsetX = 0, imageOffsetY = 0;
 
-    if (imgAspect > canvasAspect) {
+    if (imgAspect > stickerAspect) {
         // 画像が横長の場合
-        drawHeight = heightPx;
-        drawWidth = heightPx * imgAspect;
-        offsetX = (widthPx - drawWidth) / 2;
+        drawHeight = stickerHeightPx;
+        drawWidth = stickerHeightPx * imgAspect;
+        imageOffsetX = (stickerWidthPx - drawWidth) / 2;
     } else {
         // 画像が縦長の場合
-        drawWidth = widthPx;
-        drawHeight = widthPx / imgAspect;
-        offsetY = (heightPx - drawHeight) / 2;
+        drawWidth = stickerWidthPx;
+        drawHeight = stickerWidthPx / imgAspect;
+        imageOffsetY = (stickerHeightPx - drawHeight) / 2;
     }
 
-    // 背景を白に設定
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, widthPx, heightPx);
-
-    // 画像を描画
-    ctx.drawImage(currentImage, offsetX, offsetY, drawWidth, drawHeight);
+    // シール部分に画像を描画（中央配置）
+    ctx.drawImage(
+        currentImage,
+        offsetX + imageOffsetX,
+        offsetY + imageOffsetY,
+        drawWidth,
+        drawHeight
+    );
 
     // サイズ情報を更新
-    resizedSize.textContent = `${widthMm}mm × ${heightMm}mm (${widthPx}px × ${heightPx}px @ ${dpi}DPI)`;
+    resizedSize.textContent = `L判: ${printWidthMm}mm × ${printHeightMm}mm (${printWidthPx}px × ${printHeightPx}px @ ${dpi}DPI) / シール: ${stickerWidthMm}mm × ${stickerHeightMm}mm`;
 }
 
 // ファイル選択
@@ -251,7 +268,7 @@ downloadButton.addEventListener('click', () => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `support-pokemon-ticket-50x75mm-300dpi.png`;
+        a.download = `support-pokemon-ticket-L-size-300dpi.png`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
