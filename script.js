@@ -186,33 +186,61 @@ function resizeImage() {
     // クリッピングパスを解除
     ctx.restore();
 
-    // 切り取り線（破線）を描画（シール部分の外側に配置、角丸に対応）
-    const dashLength = Math.round(10 * (dpi / 300)); // DPIに応じて破線の長さを調整
-    const dashGap = Math.round(5 * (dpi / 300));
-    const lineWidth = Math.round(2 * (dpi / 300));
-    const halfLineWidth = lineWidth / 2; // 線の幅の半分
+    // 左中央に矩形をくり抜く（右上頂点と右下頂点にR=9mmの角丸）
+    // 矩形の位置：左上頂点がシールの左上頂点から下に2cm、左下頂点が55mm、幅9mm
+    const cutoutTopMm = 20; // 2cm = 20mm
+    const cutoutBottomMm = 55; // 55mm
+    const cutoutWidthMm = 9; // 9mm
+    const cutoutHeightMm = cutoutBottomMm - cutoutTopMm; // 55mm - 20mm = 35mm
+    const cutoutCornerRadiusMm = 9; // R=9mm
+    const cutoutCornerRadiusPx = mmToPixels(cutoutCornerRadiusMm, dpi);
 
-    ctx.strokeStyle = '#999999'; // グレーの切り取り線
-    ctx.lineWidth = lineWidth;
-    ctx.setLineDash([dashLength, dashGap]); // 破線パターンを設定
+    const cutoutTopPx = mmToPixels(cutoutTopMm, dpi);
+    const cutoutWidthPx = mmToPixels(cutoutWidthMm, dpi);
+    const cutoutHeightPx = mmToPixels(cutoutHeightMm, dpi);
+    const cutoutLeftPx = offsetX;
+    const cutoutTopPositionPx = offsetY + cutoutTopPx;
+    const cutoutRightPx = cutoutLeftPx + cutoutWidthPx;
+    const cutoutBottomPositionPx = cutoutTopPositionPx + cutoutHeightPx;
 
-    // 角丸の切り取り線を描画（線の中心がシール境界上に来るようにオフセット）
-    const cutLineRadius = cornerRadiusPx + halfLineWidth; // 切り取り線の角丸半径
+    // くり抜き処理：destination-outを使用（右上頂点と右下頂点に角丸）
+    ctx.globalCompositeOperation = 'destination-out';
     ctx.beginPath();
-    ctx.moveTo(offsetX + cornerRadiusPx, offsetY - halfLineWidth);
-    ctx.lineTo(offsetX + stickerWidthPx - cornerRadiusPx, offsetY - halfLineWidth);
-    ctx.arcTo(offsetX + stickerWidthPx + halfLineWidth, offsetY - halfLineWidth, offsetX + stickerWidthPx + halfLineWidth, offsetY + cornerRadiusPx, cutLineRadius);
-    ctx.lineTo(offsetX + stickerWidthPx + halfLineWidth, offsetY + stickerHeightPx - cornerRadiusPx);
-    ctx.arcTo(offsetX + stickerWidthPx + halfLineWidth, offsetY + stickerHeightPx + halfLineWidth, offsetX + stickerWidthPx - cornerRadiusPx, offsetY + stickerHeightPx + halfLineWidth, cutLineRadius);
-    ctx.lineTo(offsetX + cornerRadiusPx, offsetY + stickerHeightPx + halfLineWidth);
-    ctx.arcTo(offsetX - halfLineWidth, offsetY + stickerHeightPx + halfLineWidth, offsetX - halfLineWidth, offsetY + stickerHeightPx - cornerRadiusPx, cutLineRadius);
-    ctx.lineTo(offsetX - halfLineWidth, offsetY + cornerRadiusPx);
-    ctx.arcTo(offsetX - halfLineWidth, offsetY - halfLineWidth, offsetX + cornerRadiusPx, offsetY - halfLineWidth, cutLineRadius);
+    // 左上から開始
+    ctx.moveTo(cutoutLeftPx, cutoutTopPositionPx);
+    // 右上まで直線（角丸の開始位置まで）
+    ctx.lineTo(cutoutRightPx - cutoutCornerRadiusPx, cutoutTopPositionPx);
+    // 右上頂点の角丸
+    ctx.arcTo(cutoutRightPx, cutoutTopPositionPx, cutoutRightPx, cutoutTopPositionPx + cutoutCornerRadiusPx, cutoutCornerRadiusPx);
+    // 右辺（右下角丸の開始位置まで）
+    ctx.lineTo(cutoutRightPx, cutoutBottomPositionPx - cutoutCornerRadiusPx);
+    // 右下頂点の角丸
+    ctx.arcTo(cutoutRightPx, cutoutBottomPositionPx, cutoutRightPx - cutoutCornerRadiusPx, cutoutBottomPositionPx, cutoutCornerRadiusPx);
+    // 下辺
+    ctx.lineTo(cutoutLeftPx, cutoutBottomPositionPx);
+    // 左辺
+    ctx.lineTo(cutoutLeftPx, cutoutTopPositionPx);
     ctx.closePath();
-    ctx.stroke();
+    ctx.fillStyle = '#000000'; // 色は何でも良い（くり抜き用）
+    ctx.fill();
 
-    // 破線パターンをリセット
-    ctx.setLineDash([]);
+    // 合成モードを元に戻す
+    ctx.globalCompositeOperation = 'source-over';
+
+    // くり抜き部分に余白の装飾パターンを描画（同じ角丸パスを使用）
+    const cutoutPattern = createMarginPattern(ctx, dpi);
+    ctx.beginPath();
+    ctx.moveTo(cutoutLeftPx, cutoutTopPositionPx);
+    ctx.lineTo(cutoutRightPx - cutoutCornerRadiusPx, cutoutTopPositionPx);
+    ctx.arcTo(cutoutRightPx, cutoutTopPositionPx, cutoutRightPx, cutoutTopPositionPx + cutoutCornerRadiusPx, cutoutCornerRadiusPx);
+    ctx.lineTo(cutoutRightPx, cutoutBottomPositionPx - cutoutCornerRadiusPx);
+    ctx.arcTo(cutoutRightPx, cutoutBottomPositionPx, cutoutRightPx - cutoutCornerRadiusPx, cutoutBottomPositionPx, cutoutCornerRadiusPx);
+    ctx.lineTo(cutoutLeftPx, cutoutBottomPositionPx);
+    ctx.lineTo(cutoutLeftPx, cutoutTopPositionPx);
+    ctx.closePath();
+    ctx.fillStyle = cutoutPattern;
+    ctx.fill();
+
 
     // サイズ情報を更新
     resizedSize.textContent = `L判: ${printWidthMm}mm × ${printHeightMm}mm (${printWidthPx}px × ${printHeightPx}px @ ${dpi}DPI) / シール: ${stickerWidthMm}mm × ${stickerHeightMm}mm`;
