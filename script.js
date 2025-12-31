@@ -44,6 +44,7 @@ const errorClose = document.getElementById('errorClose');
 
 let currentImage = null;
 let ctx = resizedCanvas.getContext('2d');
+let errorTimeout = null; // エラーメッセージの自動クローズ用タイマー
 
 // mmをピクセルに変換（DPIに基づく）
 function mmToPixels(mm, dpi) {
@@ -176,17 +177,31 @@ fileInput.addEventListener('change', (e) => {
 });
 
 // エラーメッセージを表示
-function showError(message) {
+function showError(message, autoClose = true) {
     errorText.textContent = message;
     errorMessage.style.display = 'flex';
-    // 3秒後に自動で閉じる
-    setTimeout(() => {
-        hideError();
-    }, 5000);
+
+    // 既存のタイマーをクリア
+    if (errorTimeout) {
+        clearTimeout(errorTimeout);
+        errorTimeout = null;
+    }
+
+    // autoCloseがtrueの場合のみ、5秒後に自動で閉じる
+    if (autoClose) {
+        errorTimeout = setTimeout(() => {
+            hideError();
+        }, 5000);
+    }
 }
 
 // エラーメッセージを非表示
 function hideError() {
+    // タイマーをクリア
+    if (errorTimeout) {
+        clearTimeout(errorTimeout);
+        errorTimeout = null;
+    }
     errorMessage.style.display = 'none';
 }
 
@@ -245,7 +260,7 @@ async function handleFile(file) {
                 const hasQRCode = await detectQRCode(img);
 
                 if (!hasQRCode) {
-                    showError('この画像にはQRコードが検出されませんでした。サポートカードの画像にはQRコードが必要です。正しい画像をアップロードしてください。');
+                    showError('この画像にはQRコードが検出されませんでした。サポートポケモンチケットの画像にはQRコードが必要です。正しい画像をアップロードしてください。', false);
                     // ファイル入力をリセット
                     fileInput.value = '';
                     return;
