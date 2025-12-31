@@ -137,11 +137,16 @@ function resizeImage() {
 }
 
 // ファイル選択
-uploadButton.addEventListener('click', () => {
+uploadButton.addEventListener('click', (e) => {
+    e.stopPropagation(); // uploadAreaへのイベントバブリングを防止
     fileInput.click();
 });
 
-uploadArea.addEventListener('click', () => {
+uploadArea.addEventListener('click', (e) => {
+    // uploadButtonがクリックされた場合は処理しない
+    if (e.target === uploadButton || uploadButton.contains(e.target)) {
+        return;
+    }
     fileInput.click();
 });
 

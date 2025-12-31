@@ -143,12 +143,17 @@ website-project/
   - エラーメッセージのUI/UX改善（自動閉じる、手動閉じるボタン）
   - CHANGELOG.mdに作業記録を追加
 
-- **コミット**: (最新) - Cursorルールファイルの追加とGitフックの削除
+- **コミット**: `de93200` - Cursorルールファイルの追加とGitフックの削除
   - `.cursor/rules/`ディレクトリを作成し、Cursorエージェント用のルールファイルを追加
   - `commit_rules.mdc`: コミット前にCHANGELOG.mdの更新を確認するルール
   - `project_context.mdc`: プロジェクトの背景とコンテキスト情報
   - Gitフック（`.git/hooks/pre-commit`、`setup-git-hooks.sh`）を削除
   - README.mdを更新（Gitフックの記述を削除し、`.cursor/rules/`の方法に更新）
+
+- **コミット**: (最新) - ファイル選択モーダルが2回開くバグを修正
+  - uploadButtonとuploadAreaのクリックイベントバブリングを防止
+  - stopPropagation()を使用してイベントの重複発火を防止
+  - ファイル選択ボタンクリック時にモーダルが1回だけ開くように修正
 
 ### 今後の改善案
 
