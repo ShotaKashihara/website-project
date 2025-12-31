@@ -48,6 +48,36 @@ function mmToPixels(mm, dpi) {
     return Math.round((mm / 25.4) * dpi);
 }
 
+// 余白部分の装飾パターンを作成
+function createMarginPattern(ctx, dpi) {
+    const patternSize = Math.round(20 * (dpi / 300)); // DPIに応じてパターンサイズを調整
+    const patternCanvas = document.createElement('canvas');
+    patternCanvas.width = patternSize;
+    patternCanvas.height = patternSize;
+    const patternCtx = patternCanvas.getContext('2d');
+
+    // 薄いグレーの背景
+    patternCtx.fillStyle = '#f5f5f5';
+    patternCtx.fillRect(0, 0, patternSize, patternSize);
+
+    // 斜線パターンを描画
+    patternCtx.strokeStyle = '#e0e0e0';
+    patternCtx.lineWidth = 1;
+    patternCtx.beginPath();
+    // 左上から右下への斜線
+    patternCtx.moveTo(0, patternSize);
+    patternCtx.lineTo(patternSize, 0);
+    patternCtx.stroke();
+    // 右上から左下への斜線
+    patternCtx.beginPath();
+    patternCtx.moveTo(patternSize, patternSize);
+    patternCtx.lineTo(0, 0);
+    patternCtx.stroke();
+
+    // パターンを作成して返す
+    return ctx.createPattern(patternCanvas, 'repeat');
+}
+
 // サイズとDPIは固定（50mm x 75mm、300 DPI）のため、変更イベントは不要
 
 // 画像をリサイズ
@@ -74,40 +104,115 @@ function resizeImage() {
     resizedCanvas.width = printWidthPx;
     resizedCanvas.height = printHeightPx;
 
-    // 背景を白に設定（余白部分）
-    ctx.fillStyle = '#ffffff';
+    // 余白部分に装飾パターンを描画
+    const marginPattern = createMarginPattern(ctx, dpi);
+    ctx.fillStyle = marginPattern;
     ctx.fillRect(0, 0, printWidthPx, printHeightPx);
 
     // シール画像を中央に配置するためのオフセットを計算
     const offsetX = (printWidthPx - stickerWidthPx) / 2;
     const offsetY = (printHeightPx - stickerHeightPx) / 2;
 
-    // 画像をリサイズして描画（アスペクト比を保持）
+    // 角丸の半径（R=2mm）
+    const cornerRadiusMm = 2;
+    const cornerRadiusPx = mmToPixels(cornerRadiusMm, dpi);
+
+    // シール部分は白背景で上書き（装飾パターンの上に白いシール領域を描画）
+    // 角丸のパスを作成
+    ctx.beginPath();
+    ctx.moveTo(offsetX + cornerRadiusPx, offsetY);
+    ctx.lineTo(offsetX + stickerWidthPx - cornerRadiusPx, offsetY);
+    ctx.arcTo(offsetX + stickerWidthPx, offsetY, offsetX + stickerWidthPx, offsetY + cornerRadiusPx, cornerRadiusPx);
+    ctx.lineTo(offsetX + stickerWidthPx, offsetY + stickerHeightPx - cornerRadiusPx);
+    ctx.arcTo(offsetX + stickerWidthPx, offsetY + stickerHeightPx, offsetX + stickerWidthPx - cornerRadiusPx, offsetY + stickerHeightPx, cornerRadiusPx);
+    ctx.lineTo(offsetX + cornerRadiusPx, offsetY + stickerHeightPx);
+    ctx.arcTo(offsetX, offsetY + stickerHeightPx, offsetX, offsetY + stickerHeightPx - cornerRadiusPx, cornerRadiusPx);
+    ctx.lineTo(offsetX, offsetY + cornerRadiusPx);
+    ctx.arcTo(offsetX, offsetY, offsetX + cornerRadiusPx, offsetY, cornerRadiusPx);
+    ctx.closePath();
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
+
+    // クリッピングパスを設定（角丸のシール領域）
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(offsetX + cornerRadiusPx, offsetY);
+    ctx.lineTo(offsetX + stickerWidthPx - cornerRadiusPx, offsetY);
+    ctx.arcTo(offsetX + stickerWidthPx, offsetY, offsetX + stickerWidthPx, offsetY + cornerRadiusPx, cornerRadiusPx);
+    ctx.lineTo(offsetX + stickerWidthPx, offsetY + stickerHeightPx - cornerRadiusPx);
+    ctx.arcTo(offsetX + stickerWidthPx, offsetY + stickerHeightPx, offsetX + stickerWidthPx - cornerRadiusPx, offsetY + stickerHeightPx, cornerRadiusPx);
+    ctx.lineTo(offsetX + cornerRadiusPx, offsetY + stickerHeightPx);
+    ctx.arcTo(offsetX, offsetY + stickerHeightPx, offsetX, offsetY + stickerHeightPx - cornerRadiusPx, cornerRadiusPx);
+    ctx.lineTo(offsetX, offsetY + cornerRadiusPx);
+    ctx.arcTo(offsetX, offsetY, offsetX + cornerRadiusPx, offsetY, cornerRadiusPx);
+    ctx.closePath();
+    ctx.clip();
+
+    // 画像をシールサイズいっぱいに拡大し、はみ出した部分を中央からクロップ（auto fill）
     const imgAspect = currentImage.width / currentImage.height;
     const stickerAspect = stickerWidthPx / stickerHeightPx;
 
-    let drawWidth, drawHeight, imageOffsetX = 0, imageOffsetY = 0;
+    let sourceX = 0;
+    let sourceY = 0;
+    let sourceWidth = currentImage.width;
+    let sourceHeight = currentImage.height;
 
+    // 画像をシールサイズいっぱいに拡大するために必要なクロップ領域を計算（auto fill）
     if (imgAspect > stickerAspect) {
-        // 画像が横長の場合
-        drawHeight = stickerHeightPx;
-        drawWidth = stickerHeightPx * imgAspect;
-        imageOffsetX = (stickerWidthPx - drawWidth) / 2;
+        // 画像が横長の場合、高さをシールの高さに合わせて拡大
+        // 拡大率 = stickerHeightPx / currentImage.height
+        // 必要な元画像の幅 = stickerWidthPx / 拡大率 = stickerWidthPx * currentImage.height / stickerHeightPx
+        sourceHeight = currentImage.height; // 高さは全体を使用
+        sourceWidth = (stickerWidthPx * currentImage.height) / stickerHeightPx;
+        sourceX = (currentImage.width - sourceWidth) / 2; // 中央からクロップ
+        sourceY = 0;
     } else {
-        // 画像が縦長の場合
-        drawWidth = stickerWidthPx;
-        drawHeight = stickerWidthPx / imgAspect;
-        imageOffsetY = (stickerHeightPx - drawHeight) / 2;
+        // 画像が縦長の場合、幅をシールの幅に合わせて拡大
+        // 拡大率 = stickerWidthPx / currentImage.width
+        // 必要な元画像の高さ = stickerHeightPx / 拡大率 = stickerHeightPx * currentImage.width / stickerWidthPx
+        sourceWidth = currentImage.width; // 幅は全体を使用
+        sourceHeight = (stickerHeightPx * currentImage.width) / stickerWidthPx;
+        sourceX = 0;
+        sourceY = (currentImage.height - sourceHeight) / 2; // 中央からクロップ
     }
 
-    // シール部分に画像を描画（中央配置）
+    // シール部分に画像を描画（拡大して中央からクロップ、シールサイズいっぱいに表示、角丸でクリップ）
     ctx.drawImage(
         currentImage,
-        offsetX + imageOffsetX,
-        offsetY + imageOffsetY,
-        drawWidth,
-        drawHeight
+        sourceX, sourceY, sourceWidth, sourceHeight, // ソース画像のクロップ領域
+        offsetX, offsetY, stickerWidthPx, stickerHeightPx // 描画先の領域（シールサイズいっぱい）
     );
+
+    // クリッピングパスを解除
+    ctx.restore();
+
+    // 切り取り線（破線）を描画（シール部分の外側に配置、角丸に対応）
+    const dashLength = Math.round(10 * (dpi / 300)); // DPIに応じて破線の長さを調整
+    const dashGap = Math.round(5 * (dpi / 300));
+    const lineWidth = Math.round(2 * (dpi / 300));
+    const halfLineWidth = lineWidth / 2; // 線の幅の半分
+
+    ctx.strokeStyle = '#999999'; // グレーの切り取り線
+    ctx.lineWidth = lineWidth;
+    ctx.setLineDash([dashLength, dashGap]); // 破線パターンを設定
+
+    // 角丸の切り取り線を描画（線の中心がシール境界上に来るようにオフセット）
+    const cutLineRadius = cornerRadiusPx + halfLineWidth; // 切り取り線の角丸半径
+    ctx.beginPath();
+    ctx.moveTo(offsetX + cornerRadiusPx, offsetY - halfLineWidth);
+    ctx.lineTo(offsetX + stickerWidthPx - cornerRadiusPx, offsetY - halfLineWidth);
+    ctx.arcTo(offsetX + stickerWidthPx + halfLineWidth, offsetY - halfLineWidth, offsetX + stickerWidthPx + halfLineWidth, offsetY + cornerRadiusPx, cutLineRadius);
+    ctx.lineTo(offsetX + stickerWidthPx + halfLineWidth, offsetY + stickerHeightPx - cornerRadiusPx);
+    ctx.arcTo(offsetX + stickerWidthPx + halfLineWidth, offsetY + stickerHeightPx + halfLineWidth, offsetX + stickerWidthPx - cornerRadiusPx, offsetY + stickerHeightPx + halfLineWidth, cutLineRadius);
+    ctx.lineTo(offsetX + cornerRadiusPx, offsetY + stickerHeightPx + halfLineWidth);
+    ctx.arcTo(offsetX - halfLineWidth, offsetY + stickerHeightPx + halfLineWidth, offsetX - halfLineWidth, offsetY + stickerHeightPx - cornerRadiusPx, cutLineRadius);
+    ctx.lineTo(offsetX - halfLineWidth, offsetY + cornerRadiusPx);
+    ctx.arcTo(offsetX - halfLineWidth, offsetY - halfLineWidth, offsetX + cornerRadiusPx, offsetY - halfLineWidth, cutLineRadius);
+    ctx.closePath();
+    ctx.stroke();
+
+    // 破線パターンをリセット
+    ctx.setLineDash([]);
 
     // サイズ情報を更新
     resizedSize.textContent = `L判: ${printWidthMm}mm × ${printHeightMm}mm (${printWidthPx}px × ${printHeightPx}px @ ${dpi}DPI) / シール: ${stickerWidthMm}mm × ${stickerHeightMm}mm`;
