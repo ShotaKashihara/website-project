@@ -38,6 +38,9 @@ const dpiSelect = document.getElementById('dpiSelect');
 const downloadButton = document.getElementById('downloadButton');
 const resetButton = document.getElementById('resetButton');
 const resizedSize = document.getElementById('resizedSize');
+const errorMessage = document.getElementById('errorMessage');
+const errorText = document.getElementById('errorText');
+const errorClose = document.getElementById('errorClose');
 
 let currentImage = null;
 let ctx = resizedCanvas.getContext('2d');
@@ -167,23 +170,94 @@ fileInput.addEventListener('change', (e) => {
     }
 });
 
+// エラーメッセージを表示
+function showError(message) {
+    errorText.textContent = message;
+    errorMessage.style.display = 'flex';
+    // 3秒後に自動で閉じる
+    setTimeout(() => {
+        hideError();
+    }, 5000);
+}
+
+// エラーメッセージを非表示
+function hideError() {
+    errorMessage.style.display = 'none';
+}
+
+// エラーを閉じるボタン
+errorClose.addEventListener('click', hideError);
+
+// QRコードを検出
+function detectQRCode(image) {
+    return new Promise((resolve) => {
+        // 一時的なCanvasを作成して画像を描画
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+
+        // Canvasのサイズを画像に合わせる（大きすぎる場合はリサイズ）
+        const maxSize = 1000;
+        let width = image.width;
+        let height = image.height;
+
+        if (width > maxSize || height > maxSize) {
+            const scale = Math.min(maxSize / width, maxSize / height);
+            width = Math.floor(width * scale);
+            height = Math.floor(height * scale);
+        }
+
+        tempCanvas.width = width;
+        tempCanvas.height = height;
+
+        // 画像を描画
+        tempCtx.drawImage(image, 0, 0, width, height);
+
+        // ImageDataを取得
+        const imageData = tempCtx.getImageData(0, 0, width, height);
+
+        // jsQRでQRコードを検出
+        const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+        resolve(code !== null);
+    });
+}
+
 // ファイル処理
-function handleFile(file) {
+async function handleFile(file) {
     if (!file.type.startsWith('image/')) {
-        alert('画像ファイルを選択してください。');
+        showError('画像ファイルを選択してください。');
         return;
     }
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
         const img = new Image();
-        img.onload = () => {
-            currentImage = img;
-            originalPreview.src = e.target.result;
-            uploadArea.style.display = 'none';
-            previewContainer.style.display = 'block';
-            controls.style.display = 'block';
-            resizeImage();
+        img.onload = async () => {
+            // QRコードを検出
+            hideError(); // 前のエラーをクリア
+
+            try {
+                const hasQRCode = await detectQRCode(img);
+
+                if (!hasQRCode) {
+                    showError('この画像にはQRコードが検出されませんでした。サポートカードの画像にはQRコードが必要です。正しい画像をアップロードしてください。');
+                    // ファイル入力をリセット
+                    fileInput.value = '';
+                    return;
+                }
+
+                // QRコードが検出された場合、処理を続行
+                currentImage = img;
+                originalPreview.src = e.target.result;
+                uploadArea.style.display = 'none';
+                previewContainer.style.display = 'block';
+                controls.style.display = 'block';
+                resizeImage();
+            } catch (error) {
+                console.error('QRコード検出エラー:', error);
+                showError('QRコードの検出中にエラーが発生しました。もう一度お試しください。');
+                fileInput.value = '';
+            }
         };
         img.src = e.target.result;
     };

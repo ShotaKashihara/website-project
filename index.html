@@ -45,6 +45,16 @@
                         <button class="upload-button" id="uploadButton">画像を選択</button>
                     </div>
 
+                    <!-- エラーメッセージ表示エリア -->
+                    <div class="error-message" id="errorMessage" style="display: none;">
+                        <div class="error-icon">⚠️</div>
+                        <div class="error-content">
+                            <h3>エラー</h3>
+                            <p id="errorText"></p>
+                        </div>
+                        <button class="error-close" id="errorClose">×</button>
+                    </div>
+
                     <div class="preview-container" id="previewContainer" style="display: none;">
                         <div class="preview-section">
                             <h3>元の画像</h3>
@@ -126,6 +136,8 @@
         </div>
     </footer>
 
+    <!-- jsQRライブラリ（QRコード検出用） -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
