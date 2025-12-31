@@ -6,8 +6,9 @@
 }
 
 :root {
-    --primary-color: #6366f1;
-    --secondary-color: #8b5cf6;
+    --primary-color: #FF6B6B;
+    --secondary-color: #4ECDC4;
+    --accent-color: #FFE66D;
     --text-color: #1f2937;
     --text-light: #6b7280;
     --bg-color: #ffffff;
@@ -91,24 +92,28 @@ body {
 .hero {
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
     color: white;
-    padding: 8rem 0;
+    padding: 6rem 0;
     text-align: center;
 }
 
 .hero h1 {
-    font-size: 3.5rem;
+    font-size: 2.5rem;
     margin-bottom: 1rem;
     animation: fadeInUp 0.8s ease;
 }
 
 .hero-subtitle {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     margin-bottom: 2rem;
-    opacity: 0.9;
+    opacity: 0.95;
     animation: fadeInUp 0.8s ease 0.2s both;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .cta-button {
+    display: inline-block;
     background-color: white;
     color: var(--primary-color);
     padding: 1rem 2.5rem;
@@ -116,6 +121,7 @@ body {
     font-weight: 600;
     border: none;
     border-radius: 50px;
+    text-decoration: none;
     cursor: pointer;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     animation: fadeInUp 0.8s ease 0.4s both;
@@ -126,101 +132,142 @@ body {
     box-shadow: var(--shadow-lg);
 }
 
-/* セクション共通スタイル */
-section {
+/* アップロードセクション */
+.upload-section {
     padding: 5rem 0;
+    background-color: var(--bg-light);
 }
 
-section h2 {
+.upload-section h2 {
     font-size: 2.5rem;
     margin-bottom: 3rem;
     text-align: center;
     color: var(--text-color);
 }
 
-/* About セクション */
-.about {
+.upload-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.upload-area {
+    border: 3px dashed var(--border-color);
+    border-radius: 12px;
+    padding: 4rem 2rem;
+    text-align: center;
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.upload-area:hover {
+    border-color: var(--primary-color);
     background-color: var(--bg-light);
 }
 
-.about-content {
-    max-width: 800px;
-    margin: 0 auto;
-    text-align: center;
+.upload-area.drag-over {
+    border-color: var(--primary-color);
+    background-color: rgba(255, 107, 107, 0.1);
 }
 
-.about-content p {
-    font-size: 1.1rem;
-    color: var(--text-light);
-    margin-bottom: 1.5rem;
-    line-height: 1.8;
-}
-
-/* Services セクション */
-.services-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    margin-top: 3rem;
-}
-
-.service-card {
-    background-color: white;
-    padding: 2.5rem;
-    border-radius: 12px;
-    box-shadow: var(--shadow);
-    text-align: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.service-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-lg);
-}
-
-.service-icon {
-    font-size: 3rem;
+.upload-icon {
+    font-size: 4rem;
     margin-bottom: 1rem;
 }
 
-.service-card h3 {
-    font-size: 1.5rem;
+.upload-text {
+    font-size: 1.2rem;
+    color: var(--text-light);
+    margin-bottom: 1.5rem;
+}
+
+.upload-button {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white;
+    padding: 0.75rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.upload-button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* プレビューコンテナ */
+.preview-container {
+    margin-top: 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.preview-section {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+}
+
+.preview-section h3 {
+    font-size: 1.2rem;
     margin-bottom: 1rem;
     color: var(--text-color);
 }
 
-.service-card p {
-    color: var(--text-light);
-    line-height: 1.6;
-}
-
-/* Contact セクション */
-.contact {
+.image-preview {
+    width: 100%;
     background-color: var(--bg-light);
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    overflow: hidden;
 }
 
-.contact-form {
-    max-width: 600px;
-    margin: 0 auto;
+.image-preview img,
+.image-preview canvas {
+    max-width: 100%;
+    max-height: 400px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+}
+
+.size-info {
+    margin-top: 1rem;
+    text-align: center;
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+/* コントロール */
+.controls {
+    margin-top: 2rem;
     background-color: white;
-    padding: 3rem;
+    padding: 2rem;
     border-radius: 12px;
     box-shadow: var(--shadow);
 }
 
-.form-group {
+.control-group {
     margin-bottom: 1.5rem;
 }
 
-.form-group label {
+.control-group label {
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
     color: var(--text-color);
 }
 
-.form-group input,
-.form-group textarea {
+.control-group select,
+.control-group input[type="number"] {
     width: 100%;
     padding: 0.75rem;
     border: 2px solid var(--border-color);
@@ -230,16 +277,26 @@ section h2 {
     transition: border-color 0.3s ease;
 }
 
-.form-group input:focus,
-.form-group textarea:focus {
+.control-group select:focus,
+.control-group input[type="number"]:focus {
     outline: none;
     border-color: var(--primary-color);
 }
 
-.submit-button {
+#customSizeGroup {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+#customSizeGroup .control-group {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.download-button,
+.reset-button {
     width: 100%;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-    color: white;
     padding: 1rem;
     font-size: 1.1rem;
     font-weight: 600;
@@ -247,11 +304,93 @@ section h2 {
     border-radius: 8px;
     cursor: pointer;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-bottom: 1rem;
 }
 
-.submit-button:hover {
+.download-button {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white;
+}
+
+.download-button:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
+}
+
+.reset-button {
+    background-color: var(--bg-light);
+    color: var(--text-color);
+    border: 2px solid var(--border-color);
+}
+
+.reset-button:hover {
+    background-color: var(--border-color);
+}
+
+/* About セクション */
+.about {
+    padding: 5rem 0;
+    background-color: var(--bg-color);
+}
+
+.about h2 {
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
+    text-align: center;
+    color: var(--text-color);
+}
+
+.about-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.step-card {
+    background-color: white;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+}
+
+.step-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.step-number {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0 auto 1.5rem;
+}
+
+.step-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+}
+
+.step-card p {
+    color: var(--text-light);
+    line-height: 1.8;
+}
+
+/* セクション共通スタイル */
+section {
+    padding: 5rem 0;
 }
 
 /* フッター */
@@ -298,19 +437,27 @@ footer {
     }
 
     .hero h1 {
-        font-size: 2.5rem;
+        font-size: 2rem;
     }
 
     .hero-subtitle {
-        font-size: 1.2rem;
+        font-size: 1rem;
     }
 
-    .services-grid {
+    .preview-container {
         grid-template-columns: 1fr;
     }
 
-    .contact-form {
-        padding: 2rem 1.5rem;
+    .about-content {
+        grid-template-columns: 1fr;
+    }
+
+    #customSizeGroup {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #customSizeGroup .control-group {
+        margin-bottom: 1.5rem;
     }
 }
-

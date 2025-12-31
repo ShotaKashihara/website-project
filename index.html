@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>私のウェブサイト</title>
+    <title>ポケモンフレンダ サポートカード作成ツール</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <header>
         <nav class="navbar">
             <div class="container">
-                <div class="logo">My Website</div>
+                <div class="logo">🎮 サポートカード作成</div>
                 <ul class="nav-menu">
                     <li><a href="#home">ホーム</a></li>
-                    <li><a href="#about">について</a></li>
-                    <li><a href="#services">サービス</a></li>
-                    <li><a href="#contact">お問い合わせ</a></li>
+                    <li><a href="#upload">画像アップロード</a></li>
+                    <li><a href="#about">使い方</a></li>
                 </ul>
                 <button class="menu-toggle" aria-label="メニューを開く">
                     <span></span>
@@ -29,75 +28,101 @@
     <main>
         <section id="home" class="hero">
             <div class="container">
-                <h1>ようこそ</h1>
-                <p class="hero-subtitle">モダンで美しいウェブサイトへ - 自動デプロイテスト</p>
-                <button class="cta-button">始める</button>
+                <h1>ポケモンフレンダ サポートカード作成ツール</h1>
+                <p class="hero-subtitle">画像データをシールサイズにリサイズして、プラスチック製のサポートカードを作成しましょう</p>
+                <a href="#upload" class="cta-button">始める</a>
+            </div>
+        </section>
+
+        <section id="upload" class="upload-section">
+            <div class="container">
+                <h2>サポートカード画像をアップロード</h2>
+                <div class="upload-container">
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">📸</div>
+                        <p class="upload-text">画像をドラッグ&ドロップ<br>またはクリックして選択</p>
+                        <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                        <button class="upload-button" id="uploadButton">画像を選択</button>
+                    </div>
+
+                    <div class="preview-container" id="previewContainer" style="display: none;">
+                        <div class="preview-section">
+                            <h3>元の画像</h3>
+                            <div class="image-preview">
+                                <img id="originalPreview" alt="元の画像">
+                            </div>
+                        </div>
+
+                        <div class="preview-section">
+                            <h3>リサイズ後の画像（シールサイズ）</h3>
+                            <div class="image-preview">
+                                <canvas id="resizedCanvas"></canvas>
+                            </div>
+                            <div class="size-info">
+                                <p>サイズ: <span id="resizedSize">-</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="controls" id="controls" style="display: none;">
+                        <div class="control-group">
+                            <label for="sizeSelect">シールサイズを選択:</label>
+                            <select id="sizeSelect">
+                                <option value="50x50">50mm × 50mm（標準）</option>
+                                <option value="40x40">40mm × 40mm</option>
+                                <option value="60x60">60mm × 60mm</option>
+                                <option value="50x30">50mm × 30mm（横長）</option>
+                                <option value="custom">カスタムサイズ</option>
+                            </select>
+                        </div>
+                        <div class="control-group" id="customSizeGroup" style="display: none;">
+                            <label for="customWidth">幅 (mm):</label>
+                            <input type="number" id="customWidth" min="10" max="100" value="50">
+                            <label for="customHeight">高さ (mm):</label>
+                            <input type="number" id="customHeight" min="10" max="100" value="50">
+                        </div>
+                        <div class="control-group">
+                            <label for="dpiSelect">解像度 (DPI):</label>
+                            <select id="dpiSelect">
+                                <option value="300">300 DPI（高品質・推奨）</option>
+                                <option value="150">150 DPI（標準）</option>
+                                <option value="96">96 DPI（低品質）</option>
+                            </select>
+                        </div>
+                        <button class="download-button" id="downloadButton">リサイズ画像をダウンロード</button>
+                        <button class="reset-button" id="resetButton">別の画像を選択</button>
+                    </div>
+                </div>
             </div>
         </section>
 
         <section id="about" class="about">
             <div class="container">
-                <h2>について</h2>
+                <h2>使い方</h2>
                 <div class="about-content">
-                    <p>
-                        これは、HTML、CSS、JavaScriptを使用して作成されたモダンなウェブサイトです。
-                        レスポンシブデザインで、あらゆるデバイスで美しく表示されます。
-                    </p>
-                    <p>
-                        シンプルで理解しやすいコード構造を心がけています。
-                    </p>
-                </div>
-            </div>
-        </section>
-
-        <section id="services" class="services">
-            <div class="container">
-                <h2>サービス</h2>
-                <div class="services-grid">
-                    <div class="service-card">
-                        <div class="service-icon">🎨</div>
-                        <h3>デザイン</h3>
-                        <p>美しく使いやすいインターフェースをデザインします。</p>
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <h3>画像をアップロード</h3>
+                        <p>サポートカードの画像データをアップロードしてください。PNG、JPG、JPEG形式に対応しています。</p>
                     </div>
-                    <div class="service-card">
-                        <div class="service-icon">💻</div>
-                        <h3>開発</h3>
-                        <p>モダンな技術を使用したウェブアプリケーションを開発します。</p>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <h3>シールサイズを選択</h3>
+                        <p>コンビニのシール印刷サービスに合わせて、適切なサイズを選択してください。一般的には50mm × 50mmが推奨です。</p>
                     </div>
-                    <div class="service-card">
-                        <div class="service-icon">🚀</div>
-                        <h3>最適化</h3>
-                        <p>パフォーマンスとユーザー体験を最適化します。</p>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <h3>画像をダウンロード</h3>
+                        <p>リサイズされた画像をダウンロードして、コンビニのシール印刷サービスで印刷してください。印刷したシールをフレンダピックに貼り付けると、プラスチック製のサポートカードの完成です！</p>
                     </div>
                 </div>
-            </div>
-        </section>
-
-        <section id="contact" class="contact">
-            <div class="container">
-                <h2>お問い合わせ</h2>
-                <form class="contact-form" id="contactForm">
-                    <div class="form-group">
-                        <label for="name">お名前</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">メールアドレス</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="message">メッセージ</label>
-                        <textarea id="message" name="message" rows="5" required></textarea>
-                    </div>
-                    <button type="submit" class="submit-button">送信</button>
-                </form>
             </div>
         </section>
     </main>
 
     <footer>
         <div class="container">
-            <p>&copy; 2024 My Website. All rights reserved.</p>
+            <p>&copy; 2024 ポケモンフレンダ サポートカード作成ツール. All rights reserved.</p>
         </div>
     </footer>
 
