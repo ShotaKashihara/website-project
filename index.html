@@ -76,28 +76,16 @@
 
                     <div class="controls" id="controls" style="display: none;">
                         <div class="control-group">
-                            <label for="sizeSelect">シールサイズを選択:</label>
-                            <select id="sizeSelect">
-                                <option value="50x50">50mm × 50mm（標準）</option>
-                                <option value="40x40">40mm × 40mm</option>
-                                <option value="60x60">60mm × 60mm</option>
-                                <option value="50x30">50mm × 30mm（横長）</option>
-                                <option value="custom">カスタムサイズ</option>
-                            </select>
-                        </div>
-                        <div class="control-group" id="customSizeGroup" style="display: none;">
-                            <label for="customWidth">幅 (mm):</label>
-                            <input type="number" id="customWidth" min="10" max="100" value="50">
-                            <label for="customHeight">高さ (mm):</label>
-                            <input type="number" id="customHeight" min="10" max="100" value="50">
+                            <label>シールサイズ:</label>
+                            <div style="padding: 0.75rem; background-color: var(--bg-light); border-radius: 8px; font-weight: 500;">
+                                50mm × 75mm（5cm × 7.5cm）
+                            </div>
                         </div>
                         <div class="control-group">
-                            <label for="dpiSelect">解像度 (DPI):</label>
-                            <select id="dpiSelect">
-                                <option value="300">300 DPI（高品質・推奨）</option>
-                                <option value="150">150 DPI（標準）</option>
-                                <option value="96">96 DPI（低品質）</option>
-                            </select>
+                            <label>解像度:</label>
+                            <div style="padding: 0.75rem; background-color: var(--bg-light); border-radius: 8px; font-weight: 500;">
+                                300 DPI（高品質）
+                            </div>
                         </div>
                         <button class="download-button" id="downloadButton">リサイズ画像をダウンロード</button>
                         <button class="reset-button" id="resetButton">別の画像を選択</button>
@@ -117,13 +105,13 @@
                     </div>
                     <div class="step-card">
                         <div class="step-number">2</div>
-                        <h3>シールサイズを選択</h3>
-                        <p>コンビニのシール印刷サービスに合わせて、適切なサイズを選択してください。一般的には50mm × 50mmが推奨です。</p>
+                        <h3>画像をリサイズ</h3>
+                        <p>画像は自動的に5cm × 7.5cm（50mm × 75mm）のシールサイズにリサイズされます。300 DPIの高品質で出力されます。</p>
                     </div>
                     <div class="step-card">
                         <div class="step-number">3</div>
                         <h3>画像をダウンロード</h3>
-                        <p>リサイズされた画像をダウンロードして、コンビニのシール印刷サービスで印刷してください。印刷したシールをフレンダピックに貼り付けると、プラスチック製のサポートポケモンチケットの完成です！</p>
+                        <p>リサイズされた画像をダウンロードして、コンビニのシール印刷サービスで印刷してください。ネットワークプリントサービスでは、印刷サイズを5cm × 7.5cmに指定して印刷してください。印刷したシールをフレンダピックに貼り付けると、プラスチック製のサポートポケモンチケットの完成です！</p>
                     </div>
                 </div>
             </div>

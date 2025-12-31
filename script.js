@@ -30,11 +30,6 @@ const previewContainer = document.getElementById('previewContainer');
 const originalPreview = document.getElementById('originalPreview');
 const resizedCanvas = document.getElementById('resizedCanvas');
 const controls = document.getElementById('controls');
-const sizeSelect = document.getElementById('sizeSelect');
-const customSizeGroup = document.getElementById('customSizeGroup');
-const customWidth = document.getElementById('customWidth');
-const customHeight = document.getElementById('customHeight');
-const dpiSelect = document.getElementById('dpiSelect');
 const downloadButton = document.getElementById('downloadButton');
 const resetButton = document.getElementById('resetButton');
 const resizedSize = document.getElementById('resizedSize');
@@ -53,53 +48,17 @@ function mmToPixels(mm, dpi) {
     return Math.round((mm / 25.4) * dpi);
 }
 
-// サイズ選択の変更
-sizeSelect.addEventListener('change', () => {
-    if (sizeSelect.value === 'custom') {
-        customSizeGroup.style.display = 'flex';
-    } else {
-        customSizeGroup.style.display = 'none';
-    }
-    if (currentImage) {
-        resizeImage();
-    }
-});
-
-// カスタムサイズの変更
-customWidth.addEventListener('input', () => {
-    if (currentImage && sizeSelect.value === 'custom') {
-        resizeImage();
-    }
-});
-
-customHeight.addEventListener('input', () => {
-    if (currentImage && sizeSelect.value === 'custom') {
-        resizeImage();
-    }
-});
-
-// DPIの変更
-dpiSelect.addEventListener('change', () => {
-    if (currentImage) {
-        resizeImage();
-    }
-});
+// サイズとDPIは固定（50mm x 75mm、300 DPI）のため、変更イベントは不要
 
 // 画像をリサイズ
 function resizeImage() {
     if (!currentImage) return;
 
-    const dpi = parseInt(dpiSelect.value);
-    let widthMm, heightMm;
-
-    if (sizeSelect.value === 'custom') {
-        widthMm = parseInt(customWidth.value) || 50;
-        heightMm = parseInt(customHeight.value) || 50;
-    } else {
-        const [w, h] = sizeSelect.value.split('x').map(Number);
-        widthMm = w;
-        heightMm = h;
-    }
+    // 固定DPI: 300 DPI
+    const dpi = 300;
+    // 固定サイズ: 50mm x 75mm（5cm x 7.5cm）
+    const widthMm = 50;
+    const heightMm = 75;
 
     const widthPx = mmToPixels(widthMm, dpi);
     const heightPx = mmToPixels(heightMm, dpi);
@@ -292,7 +251,7 @@ downloadButton.addEventListener('click', () => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `support-card-${sizeSelect.value}-${dpiSelect.value}dpi.png`;
+        a.download = `support-pokemon-ticket-50x75mm-300dpi.png`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
